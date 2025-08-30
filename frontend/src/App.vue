@@ -1,26 +1,24 @@
-<template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
-</template>
+<script setup>
+import DashBoard from "./components/DashBoard.vue";
+import axios from "axios";
+import { ref } from "vue";
 
-<script>
-import HelloWorld from './components/HelloWorld.vue'
+const dashboards = ref([]);
 
-export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
+axios.get("/api/dashboard").then(data => (dashboards.value = data.data));
 </script>
 
+<template>
+  <template v-for="name of Object.keys(dashboards)" :key="name">
+    <v-card class="dash-card">
+      <v-card-title>{{ name }}</v-card-title>
+      <dash-board :changes="dashboards[name]"></dash-board>
+    </v-card>
+  </template>
+</template>
+
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+.dash-card {
+  margin: 2rem;
 }
 </style>

@@ -27,6 +27,7 @@ export interface DashboardEntry {
   source_type: string;
   url: string;
   title: string;
+  repository: string;
   branch: string;
   owner: {
     name: string;

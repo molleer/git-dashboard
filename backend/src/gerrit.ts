@@ -21,6 +21,7 @@ export async function get_changes(
       source_type: source.type,
       url: `${source.url}/${change.virtual_id_number}`,
       title: change.subject,
+      repository: change.project,
       branch: change.branch,
       owner: {
         name: owner.name,
