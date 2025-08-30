@@ -33,7 +33,7 @@ app.use(express.json());
 app.use("/api", router);
 
 router.get("/sources", (_, res) => {
-  res.json(config);
+  res.json(config.sources);
 });
 
 router.post("/sources/add", (req, res) => {

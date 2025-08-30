@@ -1,24 +1,30 @@
-<script setup>
-import DashBoard from "./components/DashBoard.vue";
-import axios from "axios";
-import { ref } from "vue";
-
-const dashboards = ref([]);
-
-axios.get("/api/dashboard").then(data => (dashboards.value = data.data));
-</script>
+<script setup></script>
 
 <template>
-  <template v-for="name of Object.keys(dashboards)" :key="name">
-    <v-card class="dash-card">
-      <v-card-title>{{ name }}</v-card-title>
-      <dash-board :changes="dashboards[name]"></dash-board>
-    </v-card>
-  </template>
+  <v-card class="nav-bar">
+    <nav>
+      <v-btn class="nav-button"
+        ><router-link class="nav-link" to="/">Home</router-link></v-btn
+      >
+      <v-btn class="nav-button"
+        ><router-link class="nav-link" to="/config">Config</router-link></v-btn
+      >
+    </nav>
+  </v-card>
+  <main>
+    <router-view />
+  </main>
 </template>
 
 <style>
-.dash-card {
-  margin: 2rem;
+.nav-bar {
+  padding: 0.5rem;
+}
+.nav-button {
+  margin-left: 1rem;
+}
+.nav-link {
+  text-decoration: none;
+  color: black;
 }
 </style>
