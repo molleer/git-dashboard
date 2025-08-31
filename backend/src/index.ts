@@ -43,6 +43,11 @@ router.get("/sources", (_, res) => {
   res.json(config.sources);
 });
 
+router.post("/sources/delete", (req, res) => {
+  delete config.sources[req.body.name];
+  res.status(200).send();
+});
+
 router.post("/sources/add", (req, res) => {
   if (Object.keys(config.sources).includes(req.body.name)) {
     res.status(403).send("Source with the same name already exist");
@@ -73,40 +78,6 @@ router.post("/sources/add", (req, res) => {
       return;
   }
   res.status(201).send();
-});
-
-router.post("/sources/edit", (req, res) => {
-  if (!Object.keys(config.sources).includes(req.body.name)) {
-    res.status(400).send(`No source called '${req.body.name}'`);
-    return;
-  }
-  const source = config.sources[req.body.name];
-
-  switch (source.type) {
-    case "gerrit":
-      config.sources[req.body.name] = {
-        type: source.type,
-        url: req.body.url || source.url,
-        username: req.body.username || source.url,
-        token: req.body.http_password || source.token,
-      };
-      break;
-    case "github":
-      config.sources[req.body.name] = {
-        type: source.type,
-        token: source.token,
-        url: "https://api.github.com",
-      };
-      break;
-    case undefined:
-      res.status(400).send("Source type not provided");
-      return;
-    default:
-      res.status(400).send(`Unknown source type ${req.body.type}`);
-      return;
-  }
-
-  res.status(200).send();
 });
 
 router.get("/dashboard/configs", (_, res) => {
