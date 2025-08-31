@@ -6,7 +6,13 @@ export interface Gerrit extends Source {
   type: "gerrit";
   url: string;
   username: string;
-  http_password: string;
+  token: string;
+}
+
+export interface Github extends Source {
+  type: "github";
+  url: "https://api.github.com";
+  token: string;
 }
 
 export interface DashboardConfig {
@@ -17,8 +23,13 @@ export interface GerritConfig extends DashboardConfig {
   query: string;
 }
 
+export interface GithubConfig extends DashboardConfig {
+  repo: string;
+  state: string;
+}
+
 export interface Config {
-  sources: { [id: string]: Gerrit };
+  sources: { [id: string]: Gerrit | Github };
   dashboards: { [id: string]: GerritConfig[] };
 }
 
@@ -31,7 +42,8 @@ export interface DashboardEntry {
   branch: string;
   owner: {
     name: string;
-    email: string;
+    url: string;
+    avatar: string;
   };
 }
 

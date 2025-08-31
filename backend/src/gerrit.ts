@@ -1,5 +1,23 @@
-import { gerrit_request } from "./apis";
+import axios from "axios";
 import { Gerrit, GerritConfig, DashboardEntry } from "./models";
+
+export async function gerrit_request(
+  endpoint: string,
+  source: Gerrit,
+  params: Object | undefined = undefined,
+) {
+  const data = await axios.get<string>(`${source.url}/a/${endpoint}`, {
+    params,
+    headers: {
+      Accept: "application/json",
+    },
+    auth: {
+      username: source.username,
+      password: source.token,
+    },
+  });
+  return JSON.parse(data.data.substring(4));
+}
 
 export async function get_changes(
   source: Gerrit,
@@ -25,7 +43,8 @@ export async function get_changes(
       branch: change.branch,
       owner: {
         name: owner.name,
-        email: owner.email,
+        url: `${source.url}/q/owner:${owner.email}`,
+        avatar: owner.avatar[0].url,
       },
     });
   }

@@ -7,7 +7,6 @@ const dashConfigHeaders = [
   {
     title: "Dashboard",
     key: "dashboard",
-    groupable: false,
   },
   {
     title: "Source",
@@ -16,6 +15,36 @@ const dashConfigHeaders = [
   {
     title: "Query",
     key: "query",
+  },
+  {
+    title: "Repo",
+    key: "repo",
+  },
+  {
+    title: "State",
+    key: "state",
+  },
+];
+const sourceHeaders = [
+  {
+    title: "Name",
+    key: "name",
+  },
+  {
+    title: "Type",
+    key: "type",
+  },
+  {
+    title: "URL",
+    key: "url",
+  },
+  {
+    title: "Username",
+    key: "username",
+  },
+  {
+    title: "Token",
+    key: "token",
   },
 ];
 
@@ -35,6 +64,7 @@ axios
   <v-card class="table">
     <v-card-title>Sources</v-card-title>
     <v-data-table
+      :headers="sourceHeaders"
       :items="Object.keys(sources).map(key => ({ name: key, ...sources[key] }))"
     ></v-data-table>
   </v-card>

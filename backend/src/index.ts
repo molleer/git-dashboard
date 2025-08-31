@@ -1,7 +1,14 @@
 import express from "express";
 import fs from "fs";
-import { Config, DashboardEntry, GerritConfig } from "./models";
+import {
+  Config,
+  DashboardConfig,
+  DashboardEntry,
+  GerritConfig,
+  GithubConfig,
+} from "./models";
 import { get_changes } from "./gerrit";
+import { get_pulls } from "./github";
 
 const config_file: string =
   process.env.CONFIG_FILE ||
@@ -48,16 +55,24 @@ router.post("/sources/add", (req, res) => {
         type: req.body.type,
         url: req.body.url,
         username: req.body.username,
-        http_password: req.body.http_password,
+        token: req.body.http_password,
       };
-      res.status(201).send();
+      break;
+    case "github":
+      config.sources[req.body.name] = {
+        type: req.body.type,
+        token: req.body.token,
+        url: "https://api.github.com",
+      };
       break;
     case undefined:
       res.status(400).send("Source type not provided");
-      break;
+      return;
     default:
       res.status(400).send(`Unknown source type '${req.body.type}'`);
+      return;
   }
+  res.status(201).send();
 });
 
 router.post("/sources/edit", (req, res) => {
@@ -65,24 +80,33 @@ router.post("/sources/edit", (req, res) => {
     res.status(400).send(`No source called '${req.body.name}'`);
     return;
   }
+  const source = config.sources[req.body.name];
 
-  switch (req.body.type) {
+  switch (source.type) {
     case "gerrit":
-      const source = config.sources[req.body.name];
       config.sources[req.body.name] = {
-        type: req.body.type || source.type,
+        type: source.type,
         url: req.body.url || source.url,
         username: req.body.username || source.url,
-        http_password: req.body.http_password || source.http_password,
+        token: req.body.http_password || source.token,
       };
-      res.status(200).send();
+      break;
+    case "github":
+      config.sources[req.body.name] = {
+        type: source.type,
+        token: source.token,
+        url: "https://api.github.com",
+      };
       break;
     case undefined:
       res.status(400).send("Source type not provided");
-      break;
+      return;
     default:
       res.status(400).send(`Unknown source type ${req.body.type}`);
+      return;
   }
+
+  res.status(200).send();
 });
 
 router.get("/dashboard/configs", (_, res) => {
@@ -95,7 +119,7 @@ router.post("/dashboard/configs", (req, res) => {
 });
 
 async function get_filtered_data(
-  filter: GerritConfig,
+  filter: DashboardConfig,
 ): Promise<DashboardEntry[]> {
   if (!Object.keys(config.sources).includes(filter.source)) {
     throw Error(`Source '${filter.source}' was not found`);
@@ -104,9 +128,11 @@ async function get_filtered_data(
   const source = config.sources[filter.source];
   switch (source.type) {
     case "gerrit":
-      return get_changes(source, filter);
+      return get_changes(source, filter as GerritConfig);
+    case "github":
+      return get_pulls(source, filter as GithubConfig);
     default:
-      throw Error(`Source type '${source.type}' not supported`);
+      throw Error(`Source type not supported`);
   }
 }
 router.get("/dashboard", async (req, res) => {
