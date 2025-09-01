@@ -1,0 +1,27 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./backend/dashboard_config.json:/app/dashboard_config.json:rw
+    networks:
+      - app
+
+  app:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - app
+
+networks:
+  app:

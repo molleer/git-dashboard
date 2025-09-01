@@ -1,5 +1,7 @@
 import express from "express";
 import fs from "fs";
+import { get_changes } from "./gerrit";
+import { get_pulls } from "./github";
 import {
   Config,
   DashboardConfig,
@@ -7,12 +9,12 @@ import {
   GerritConfig,
   GithubConfig,
 } from "./models";
-import { get_changes } from "./gerrit";
-import { get_pulls } from "./github";
 
 const config_file: string =
   process.env.CONFIG_FILE ||
   process.argv[1].split("/").slice(0, -2).join("/") + "/dashboard_config.json";
+
+console.log(`Using config file: ${config_file}`);
 
 const config: Config = fs.existsSync(config_file)
   ? JSON.parse(String(fs.readFileSync(config_file)))

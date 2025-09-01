@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Gerrit, GerritConfig, DashboardEntry } from "./models";
+import { DashboardEntry, Gerrit, GerritConfig } from "./models";
 
 export async function gerrit_request(
   endpoint: string,
