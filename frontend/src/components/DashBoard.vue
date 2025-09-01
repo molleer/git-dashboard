@@ -12,11 +12,7 @@ const headers = [
 </script>
 
 <template>
-  <v-data-table
-    :headers="headers"
-    :items="props.changes"
-    :hide-default-footer="true"
-  >
+  <v-data-table :headers="headers" :items="props.changes">
     <template v-slot:[`item.title`]="{ value, item }">
       <a :href="item.url">{{ value }}</a>
     </template>

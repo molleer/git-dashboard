@@ -18,21 +18,6 @@ const config: Config = fs.existsSync(config_file)
   ? JSON.parse(String(fs.readFileSync(config_file)))
   : { sources: {}, dashboards: {} };
 
-function save_config() {
-  fs.writeFileSync(config_file, JSON.stringify(config));
-  console.log("Config saved!");
-  process.exit();
-}
-
-const EXIT_EVENTS: string[] = [
-  "exit",
-  "SIGINT",
-  "SIGUSR1",
-  "SIGUSR2",
-  "uncaughtException",
-];
-EXIT_EVENTS.forEach(event => process.on(event, save_config));
-
 const app = express();
 const router = express.Router();
 
@@ -43,50 +28,13 @@ router.get("/sources", (_, res) => {
   res.json(config.sources);
 });
 
-router.post("/sources/delete", (req, res) => {
+router.post("/sources", (req, res) => {
   delete config.sources[req.body.name];
   res.status(200).send();
 });
 
-router.post("/sources/add", (req, res) => {
-  if (Object.keys(config.sources).includes(req.body.name)) {
-    res.status(403).send("Source with the same name already exist");
-    return;
-  }
-
-  switch (req.body.type) {
-    case "gerrit":
-      config.sources[req.body.name] = {
-        type: req.body.type,
-        url: req.body.url,
-        username: req.body.username,
-        token: req.body.http_password,
-      };
-      break;
-    case "github":
-      config.sources[req.body.name] = {
-        type: req.body.type,
-        token: req.body.token,
-        url: "https://api.github.com",
-      };
-      break;
-    case undefined:
-      res.status(400).send("Source type not provided");
-      return;
-    default:
-      res.status(400).send(`Unknown source type '${req.body.type}'`);
-      return;
-  }
-  res.status(201).send();
-});
-
-router.get("/dashboard/configs", (_, res) => {
-  res.json(config.dashboards);
-});
-
-router.post("/dashboard/configs", (req, res) => {
-  config.dashboards[req.body.name] = req.body.filters;
-  res.status(200).send();
+router.get("/config", (_, res) => {
+  res.json(config);
 });
 
 async function get_filtered_data(

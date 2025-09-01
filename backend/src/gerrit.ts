@@ -44,7 +44,8 @@ export async function get_changes(
       owner: {
         name: owner.name,
         url: `${source.url}/q/owner:${owner.email}`,
-        avatar: owner.avatar[0].url,
+        avatar:
+          owner.avatar && owner.avatar.length > 0 ? owner.avatar[0].url : "",
       },
     });
   }
