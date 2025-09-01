@@ -32,6 +32,20 @@ async function github_request<T>(
   });
 }
 
+function filer_query(pull: PullResponse, query: string) {
+  const queries = query.split(" ");
+  const authors = queries
+    .filter(e => e.match(/^author:[a-zA-Z0-9]+/))
+    .map(e => e.replace(/^author:/, ""));
+  const not_author = queries
+    .filter(e => e.match(/^-author:[a-zA-Z0-9]+/))
+    .map(e => e.replace(/^-author:/, ""));
+
+  if (authors.length > 0 && !authors.includes(pull.user.login)) return false;
+  if (not_author.length && not_author.includes(pull.user.login)) return false;
+  return true;
+}
+
 export async function get_pulls(
   source: Github,
   dashboard: GithubConfig,
@@ -39,22 +53,22 @@ export async function get_pulls(
   const pulls = await github_request<PullResponse[]>(
     `repos/${dashboard.repo}/pulls`,
     source,
-    {
-      state: dashboard.state,
-    },
+    {},
   );
 
-  return pulls.data.map<DashboardEntry>(pull => ({
-    title: pull.title,
-    url: pull.html_url,
-    source: dashboard.source,
-    source_type: source.type,
-    repository: pull.head.repo.full_name,
-    branch: pull.base.ref,
-    owner: {
-      name: pull.user.login,
-      url: pull.user.html_url,
-      avatar: pull.user.avatar_url,
-    },
-  }));
+  return pulls.data
+    .filter(pull => filer_query(pull, dashboard.query))
+    .map<DashboardEntry>(pull => ({
+      title: pull.title,
+      url: pull.html_url,
+      source: dashboard.source,
+      source_type: source.type,
+      repository: pull.head.repo.full_name,
+      branch: pull.base.ref,
+      owner: {
+        name: pull.user.login,
+        url: pull.user.html_url,
+        avatar: pull.user.avatar_url,
+      },
+    }));
 }

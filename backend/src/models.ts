@@ -25,7 +25,7 @@ export interface GerritConfig extends DashboardConfig {
 
 export interface GithubConfig extends DashboardConfig {
   repo: string;
-  state: string;
+  query: string;
 }
 
 export interface Config {
