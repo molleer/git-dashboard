@@ -1,5 +1,5 @@
-import { DashboardEntry, Github, GithubConfig } from "./models";
 import axios from "axios";
+import { DashboardEntry, Github, GithubConfig } from "./models";
 
 interface PullResponse {
   title: string;
@@ -17,6 +17,7 @@ interface PullResponse {
     html_url: string;
     avatar_url: string;
   };
+  draft: boolean;
 }
 
 async function github_request<T>(
@@ -40,9 +41,17 @@ function filer_query(pull: PullResponse, query: string) {
   const not_author = queries
     .filter(e => e.match(/^-author:[a-zA-Z0-9]+/))
     .map(e => e.replace(/^-author:/, ""));
+  const is = queries
+    .filter(e => e.match(/^is:(draft)/))
+    .map(e => e.replace(/^is:/, ""));
+  const is_not = queries
+    .filter(e => e.match(/^-is:(draft)/))
+    .map(e => e.replace(/^is:/, ""));
 
-  if (authors.length > 0 && !authors.includes(pull.user.login)) return false;
-  if (not_author.length && not_author.includes(pull.user.login)) return false;
+  if (!authors.includes(pull.user.login)) return false;
+  if (not_author.includes(pull.user.login)) return false;
+  if (is.includes("draft") && !pull.draft) return false;
+  if (is_not.includes("draft") && pull.draft) return false;
   return true;
 }
 
