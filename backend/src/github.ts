@@ -46,7 +46,7 @@ function filer_query(pull: PullResponse, query: string) {
     .map(e => e.replace(/^is:/, ""));
   const is_not = queries
     .filter(e => e.match(/^-is:(draft)/))
-    .map(e => e.replace(/^is:/, ""));
+    .map(e => e.replace(/^-is:/, ""));
 
   if (!authors.includes(pull.user.login)) return false;
   if (not_author.includes(pull.user.login)) return false;
